@@ -17,7 +17,7 @@ def get_input(day, year=2018):
         try:
             with urllib.request.urlopen(req) as input, open(cache_file_name, 'wb') as output:
                 shutil.copyfileobj(input, output)
-        except urllib.error.HTTPError as e:
+        except urllib.error.HTTPError:
             return
 
     with open(cache_file_name, 'rb') as input:
