@@ -1,5 +1,16 @@
 import little_helper
 
+def react(polymer):
+    while True:
+        start_polymer = polymer
+        for a,b in zip(polymer[:-1], polymer[1:]):
+            if a != b:
+                if a == b.lower() or a.lower() == b:
+                    polymer = polymer.replace(a + b, "")
+                    break
+        if start_polymer == polymer:
+            return polymer
+
 
 def answer(input):
     """
@@ -18,15 +29,8 @@ def answer(input):
 
     polymer = lines[0]
 
-    while True:
-        start_polymer = polymer
-        for a,b in zip(polymer[:-1], polymer[1:]):
-            if a != b:
-                if a == b.lower() or a.lower() == b:
-                    polymer = polymer.replace(a + b, "")
-                    break
-        if start_polymer == polymer:
-            break
+    polymer = react(polymer)
+    
     return len(polymer)
 
 
