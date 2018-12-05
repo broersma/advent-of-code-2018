@@ -1,30 +1,23 @@
 import little_helper
 
+react = __import__("5_1").react
+
 
 def answer(input):
     """
     >>> answer("dabAcCaCBAcCcaDA")
     4
     """
-    lines = input.split('\n')
-
-    polymer = lines[0]
-    types = set(polymer.lower())
-    min_len = len(polymer)
+    types = set(input.lower())
+    min_len = len(input)
     for t in types:
-        polymer = lines[0]
+        polymer = input
+
         polymer = polymer.replace(t, "")
         polymer = polymer.replace(t.upper(), "")
 
-        while True:
-            start_polymer = polymer
-            for a,b in zip(polymer[:-1], polymer[1:]):
-                if a != b:
-                    if a == b.lower() or a.lower() == b:
-                        polymer = polymer.replace(a + b, "")
-                        break
-            if start_polymer == polymer:
-                break
+        polymer = react(polymer)
+
         if len(polymer) < min_len:
             min_len = len(polymer)
     return min_len

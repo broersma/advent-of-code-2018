@@ -1,13 +1,12 @@
 import little_helper
 
 def react(polymer):
+    types = set(polymer.lower())
     while True:
         start_polymer = polymer
-        for a,b in zip(polymer[:-1], polymer[1:]):
-            if a != b:
-                if a == b.lower() or a.lower() == b:
-                    polymer = polymer.replace(a + b, "")
-                    break
+        for type in types:
+            polymer = polymer.replace(type.upper() + type, "")
+            polymer = polymer.replace(type + type.upper(), "")
         if start_polymer == polymer:
             return polymer
 
@@ -25,9 +24,7 @@ def answer(input):
     >>> answer("dabAcCaCBAcCcaDA")
     10
     """
-    lines = input.split('\n')
-
-    polymer = lines[0]
+    polymer = input
 
     polymer = react(polymer)
     
