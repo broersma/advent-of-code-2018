@@ -14,11 +14,11 @@ from sys import exit
 
 def answer(input):
     """
-    >>> answer(1234)
+    >>> answer("1234")
     1234
     """
     lines = input.split('\n')
-    return lines
+    return int(lines[0])
 
 
 if __name__ == '__main__':
