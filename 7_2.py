@@ -12,8 +12,8 @@ import re
 from sys import exit
 
 day = 7
-if __file__.endswith("_2"):
-    m = __import__(day + "_1")
+if __file__.endswith("_2.py"):
+    m = __import__(str(day) + "_1")
 
 def answer(input):
     """
@@ -31,8 +31,6 @@ if __name__ == '__main__':
     parser.add_argument('level', type=int, default=-1, nargs='?')
     args = parser.parse_args()
     level = args.level
-
-    day = 5
 
     input = little_helper.get_input(day)
     the_answer = answer(input)
