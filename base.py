@@ -18,7 +18,8 @@ def answer(input):
     1234
     """
     lines = input.split('\n')
-    return int(lines[0])
+    for line in lines:
+        return int(line)
 
 
 if __name__ == '__main__':
