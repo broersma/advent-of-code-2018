@@ -11,6 +11,8 @@ import re
 #from numba import jit
 from sys import exit
 
+import networkx as nx
+
 day = 7
 if __file__.endswith("_2.py"):
     m = __import__(str(day) + "_1")
@@ -20,9 +22,22 @@ def answer(input):
     >>> answer("1234")
     1234
     """
+    G = create_graph(input)
+        #return int(line)
+    strrr = ""
+    for x in nx.lexicographical_topological_sort(G):
+        strrr += x
+    return strrr
+
+def create_graph(input):
     lines = input.split('\n')
+    G=nx.DiGraph()
     for line in lines:
-        return int(line)
+        #tep B must be finished before step X can begin.
+        a,b = line[5], line[36]
+        G.add_edge(a,b)
+        #return int(line)
+    return G
 
 
 if __name__ == '__main__':

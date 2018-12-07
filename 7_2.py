@@ -11,19 +11,44 @@ import re
 #from numba import jit
 from sys import exit
 
+import networkx as nx
+
 day = 7
 if __file__.endswith("_2.py"):
-    m = __import__(str(day) + "_1")
+    create_graph = __import__(str(day) + "_1").create_graph
 
 def answer(input):
     """
     >>> answer("1234")
     1234
     """
-    lines = input.split('\n')
-    for line in lines:
-        return int(line)
+    G = create_graph(input)
 
+    done_nodes = set()
+
+    worker_nodes = dict()
+    for i in range(5):
+        worker_nodes[i] = None
+
+    time = 0
+    while len(done_nodes) != len(G.nodes):
+        for node in G.nodes:
+            if node not in done_nodes and not any(node == value[0] for value in worker_nodes.values() if value):
+                if all(ancestor in done_nodes for ancestor in nx.ancestors(G, node)):
+                    for i in worker_nodes:
+                        if not worker_nodes[i]:
+                            worker_nodes[i] = (node, ord(node) - 4) #-64+60
+                            break
+        for i in worker_nodes:
+            if worker_nodes[i]:
+                node, time_left = worker_nodes[i]
+                if time_left == 1:
+                    done_nodes.add(node)
+                    worker_nodes[i] = None
+                else:
+                    worker_nodes[i] = (node, time_left-1)
+        time+=1
+    return time
 
 if __name__ == '__main__':
     import argparse
