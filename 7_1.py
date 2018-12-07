@@ -4,10 +4,7 @@ import networkx as nx
 
 def answer(input):
     G = create_graph(input)
-    strrr = ""
-    for x in nx.lexicographical_topological_sort(G):
-        strrr += x
-    return strrr
+    return ''.join(nx.lexicographical_topological_sort(G))
 
 
 def create_graph(input):
