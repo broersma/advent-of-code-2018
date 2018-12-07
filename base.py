@@ -11,7 +11,7 @@ import re
 #from numba import jit
 from sys import exit
 
-day = 7
+day = 8
 if __file__.endswith("_2"):
     m = __import__(day + "_1")
 
@@ -31,8 +31,6 @@ if __name__ == '__main__':
     parser.add_argument('level', type=int, default=-1, nargs='?')
     args = parser.parse_args()
     level = args.level
-
-    day = 5
 
     input = little_helper.get_input(day)
     the_answer = answer(input)
