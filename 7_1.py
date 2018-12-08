@@ -4,16 +4,13 @@ import networkx as nx
 
 def answer(input):
     G = create_graph(input)
-    return ''.join(nx.lexicographical_topological_sort(G))
+    topological_sort = nx.lexicographical_topological_sort(G)
+    return ''.join(topological_sort)
 
 
 def create_graph(input):
     lines = input.split('\n')
-    G=nx.DiGraph()
-    for line in lines:
-        a,b = line[5], line[36]
-        G.add_edge(a,b)
-    return G
+    return nx.DiGraph((line[5], line[36]) for line in lines)
 
 
 if __name__ == '__main__':
