@@ -15,14 +15,45 @@ day = 8
 if __file__.endswith("_2"):
     m = __import__(day + "_1")
 
+
+def get_len(node):
+    return 2+len(node[0]) + sum(get_len(n) for n in node[1])
+
+    
+def get_sum(node):
+    return sum(node[0]) + sum(get_sum(n) for n in node[1])
+
+
+def get_node(nums):
+    num_children = nums[0]
+    num_meta_data = nums[1]
+    remaining_nums = nums[2:]
+
+    children = []
+    for i in range(num_children):
+        node = get_node(remaining_nums)
+
+        children.append(node)
+        remaining_nums = remaining_nums[get_len(node):]
+
+    meta_data = remaining_nums[:num_meta_data]
+    return (meta_data, children)
+
 def answer(input):
     """
-    >>> answer("1234")
-    1234
+    >>> answer("0 3 10 11 12")
+    33
+    >>> answer("2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2")
+    138
     """
     lines = input.split('\n')
+    nums = []
     for line in lines:
-        return int(line)
+        for num in line.split():
+            nums.append(int(num))
+    
+    root = get_node(nums)
+    return get_sum(root)
 
 
 if __name__ == '__main__':
