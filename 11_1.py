@@ -18,7 +18,7 @@ if __file__.endswith("_2"):
 def answer(input):
     """
     >>> answer(18)
-    33,45
+    '33,45'
     """
     max_power_xy = None
     max_power = 0
