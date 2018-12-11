@@ -1,16 +1,5 @@
 import little_helper
 
-# defaultdict(list), defaultdict(int), deque.rotate/append
-from collections import defaultdict, deque
-# functools.reduce(function, iterable[, initializer])
-from functools import reduce
-# islice(seq, [start,] stop [, step])
-from itertools import islice
-import re
-#import networkx as nx
-#from numba import jit
-from sys import exit
-
 day = 10
 if __file__.endswith("_2"):
     m = __import__(day + "_1")
@@ -55,10 +44,6 @@ class Light:
         self.position[1] -= self.velocity[1]
         
 def answer(input):
-    """
-    >>> answer("1234")
-    1234
-    """
     lines = input.split('\n')
     lights = []
     for line in lines:
@@ -71,11 +56,6 @@ def answer(input):
         velocity = [velocity_x,velocity_y]
         lights.append(Light(position, velocity))
     
-    min_x = min(light.position[0] for light in lights)
-    max_x = max(light.position[0] for light in lights)
-    min_y = min(light.position[1] for light in lights)
-    max_y = max(light.position[1] for light in lights)
-    
     min_area = area(lights)
     seconds = 0
     while True:
@@ -83,10 +63,6 @@ def answer(input):
         current_area = area(lights)
         if current_area > min_area:
             reverse(lights)
-            min_x = min(light.position[0] for light in lights)
-            max_x = max(light.position[0] for light in lights)
-            min_y = min(light.position[1] for light in lights)
-            max_y = max(light.position[1] for light in lights)
             return seconds
         else:
             min_area = current_area
