@@ -21,7 +21,7 @@ def get_input(day, year=2018):
             return
 
     with open(cache_file_name, 'rb') as input:
-        return input.read().decode("utf-8").strip()
+        return input.read().decode("utf-8").rstrip()
 
 
 def submit(answer, level, day, year=2018, reopen=True):
