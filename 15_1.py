@@ -25,7 +25,7 @@ def parse_input(input):
     for line in input:
         for x, c in enumerate(line):
             if c in ['E','G']:
-                units.append([x,y,c,id])
+                units.append([x,y,c,id,3,200])
                 id += 1
 
         line = line.replace("G", ".").replace("E", ".")
@@ -99,12 +99,19 @@ def answer(input):
         
         # attack
         for unit in sorted(units, key=lambda unit: tuple(unit[:2][::-1])):
-            print(unit)
-            potential_targets = []
-            adjacent_squares = ((unit[0] + dx, unit[1] + dy) for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)])
-            for potential_target in (u for u in units if unit[2] != u[2]):
-                if tuple(potential_target[:2]) in adjacent_squares:
+            if unit[5] >= 0:
+                #print(unit)
+                potential_targets = []
+                adjacent_squares = [(unit[0] + dx, unit[1] + dy) for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)]]
+                #print([u for u in units if unit[2] != u[2]])
+                for potential_target in sorted((u for u in units if unit[2] != u[2] and tuple(u[:2]) in adjacent_squares), key=lambda unit: (unit[5],) + tuple(unit[:2][::-1])):
+                    #print("?", potential_target)
+                    #print(adjacent_squares)
                     print(unit,"attack", potential_target)
+                    potential_target[5] -= unit[4]
+                    
+        # remove dead units
+        # TODO
     return #show_grid(grid, units)
 
 
