@@ -27,8 +27,11 @@ def parse_input(input):
             if c in ['E','G']:
                 units.append([x,y,c,id,3,200])
                 id += 1
+            elif c == 'g':
+                units.append([x,y,'G',id,3,100])
+                id += 1
 
-        line = line.replace("G", ".").replace("E", ".")
+        line = line.replace("G", ".").replace("E", ".").replace("g", ".")
         grid.append(line)
         y += 1
     return grid, units
@@ -40,7 +43,7 @@ def show_grid(grid, units):
         for x, c in enumerate(line):
             for unit in units:
                 if unit[0] == x and unit[1] == y:
-                    c = unit[2] #str(unit[3])
+                    c = unit[2]
             text += c
         for unit in sorted((unit for unit in units if unit[1] == y), key=lambda u: u[0]):
             text += " {0}({1}){2}".format(unit[2],unit[5],unit[3])                
@@ -49,95 +52,87 @@ def show_grid(grid, units):
     return text
 
 def update_weights(G, units):
-    H = nx.create_empty_copy(G)
-    for node in H.nodes():        
-        for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)]:
-            adj_node = (node[0]+dx, node[1]+dy)
-            if H.has_node(adj_node):
-                H.add_edge(node,adj_node)
-    return H
-
+    for u,v,data in G.edges(data=True):
+        weight = 99999 if any(tuple(unit[:2]) in [u, v] for unit in units if unit[5] > 0) else 1
+        data['weight'] = weight
+        
 def create_graph(grid):    
     G = nx.Graph()
     for y,line in enumerate(grid):
         for x,c in enumerate(line):
             if c in ['.', 'G', 'E']:
                 G.add_node((x,y))
+    for node in G.nodes():        
+        for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)]:
+            adj_node = (node[0]+dx, node[1]+dy)
+            if G.has_node(adj_node):
+                G.add_edge(node,adj_node)
     return G
+    
+def pr(unit):
+    return "{0}({1}){2}".format(unit[2],unit[5],unit[3])
+    
 def answer(input):
     grid, units = parse_input(input)
     
     G = create_graph(grid)
-    #print(G.nodes)
-    #print(G.edges)
-    G = update_weights(G,units)
-    #print()
-    
-    #print(G.nodes)
-    #print(G.edges)
-    #print(G.edges())
-    #return
-    #nx.draw(G, with_labels=True)
-    #plt.show()
-    #plt.savefig("path.png")
-    #print(nx.shortest_path(G, tuple(units[0][:2]), tuple(units[1][:2]), weight='weight'))
-    #print(nx.shortest_path(G, (10,1), (10,5), weight='weight'))
-    #print(show_grid(grid, units))
-    #
-    #print(show_grid(grid, units))
+    update_weights(G,units)
     round = 0
-    #while len(set(unit[2] for unit in units)) > 1:
-    for _ in range(3):
-        # move
-        round += 1
-        for unit in sorted(units, key=lambda unit: tuple(unit[:2][::-1])):
-            paths = []
-            for potential_target in (u for u in units if unit[3] != u[3] and unit[2] != u[2]):
-                for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)]:
-                    adjacent_square = (potential_target[0] + dx, potential_target[1] + dy)
-                    if adjacent_square in G.nodes and adjacent_square not in ((u[0],u[1]) for u in units if unit[3] != u[3]):
-                        paths += [path for path in nx.all_shortest_paths(G, tuple(unit[:2]), adjacent_square)]
-            paths = [path for path in paths if len(path) == 1 or not any(tuple(u[:2]) in path for u in units)]
-            #if unit[3] == 0:
-            #    for p in paths:
-            #        print(p)
-            if len(paths) > 0:
-                shortest_path_len = min(set(len(path) for path in paths))
-                if shortest_path_len > 1:
-                    paths_sorted_by_len = (path for path in paths if len(path) == shortest_path_len)
-                    paths_sorted_by_first_step = sorted(paths_sorted_by_len, key=lambda path: (path[1][1], path[1][0]))
-                    path = paths_sorted_by_first_step[0]
-                    #print(unit[3],unit[:2], end=' -> ')
-                    unit[0] = path[1][0]
-                    unit[1] = path[1][1]
-                    #print(unit[:2])
-                    G = update_weights(G,units)
-        
-        #print(show_grid(grid, units))
-        
-        # attack
-        for unit in sorted(units, key=lambda unit: tuple(unit[:2][::-1])):
-            if unit[5] >= 0:
-                #print(unit)
+    while True:
+    #for _ in range(3):
+        for unit in sorted(units, key=lambda u: (u[1], u[0])):
+            if unit[5] > 0:
+                #print(pr(unit), end='')
+                potential_targets = [u for u in units if unit[2] != u[2] and u[5] > 0]
+                #print("->",', '.join([pr(u) for u in potential_targets]))
+                if len(potential_targets) == 0:
+                    hps = [u[5] for u in units if u[5] > 0]
+                    #print(show_grid(grid, units))
+                    print("Outcome: {0} * {1} = {2}".format(round, sum(hps), sum(hps) * round))
+                    print("Outcome 2: {0} * {1} = {2}".format(round, sum(hps)-3, (sum(hps)-3) * round))
+                    return sum(hps) * round
+                
+                
+                # move
+                paths = []
+                for potential_target in potential_targets:
+                    for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)]:
+                        adjacent_square = (potential_target[0] + dx, potential_target[1] + dy)
+                        if adjacent_square in G.nodes and adjacent_square not in ((u[0],u[1]) for u in units if unit[3] != u[3]):
+                            paths += [path for path in nx.all_shortest_paths(G, tuple(unit[:2]), adjacent_square, weight='weight')]
+                paths = [path for path in paths if len(path) == 1 or (len(path)>1 and not any(tuple(u[:2]) in path[1:-1] for u in units if u[5] > 0))]
+                
+                if len(paths) > 0:
+                    shortest_path_len = min(set(len(path) for path in paths))
+                    if shortest_path_len > 1:
+                        paths_sorted_by_len = (path for path in paths if len(path) == shortest_path_len)
+                        paths_sorted_by_first_step = sorted(paths_sorted_by_len, key=lambda path: (path[1][1], path[1][0]))
+                        path = next(paths_sorted_by_first_step)
+                        unit[0] = path[1][0]
+                        unit[1] = path[1][1]
+                        update_weights(G,units)
+                        
+                #attack
                 adjacent_squares = [(unit[0] + dx, unit[1] + dy) for dx,dy in [(-1,0), (1,0),(0,1),(0,-1)]]
-                #print([u for u in units if unit[2] != u[2]])
-                for potential_target in sorted((u for u in units if unit[2] != u[2] and tuple(u[:2]) in adjacent_squares), key=lambda unit: (unit[5],) + tuple(unit[:2][::-1])):
-                    #print("?", potential_target)
-                    #print(adjacent_squares)
-                    #print(unit,"attack", potential_target)
+                potential_targets = sorted((u for u in units if unit[2] != u[2] and tuple(u[:2]) in adjacent_squares), key=lambda unit: (unit[5],unit[1], unit[0]))
+                for potential_target in potential_targets:
+                    #if round == 46:
+                    #    print(unit, "->", potential_target)
                     potential_target[5] -= unit[4]
+                    update_weights(G,units)
                     break
 
 
         # remove dead units
-        units = [unit for unit in units if unit[5] > 0]
-        G = update_weights(G,units)
+        units = [u for u in units if u[5] > 0]
 
-        print("After", round, "rounds")
-        print(show_grid(grid, units))
+        round += 1
+        #print("After", round, "rounds")
+        #print(show_grid(grid, units))
         
-    hps = [unit[5] for unit in units]
+    hps = [u[5] for u in units]
     #print(hps)
+    print("Combat ends after {0} full rounds\nElves win with {1} total hit points left\nOutcome: {0} * {1} = {2}".format(round, sum(hps), sum(hps) * round))
     return sum(hps) * round
 
 
