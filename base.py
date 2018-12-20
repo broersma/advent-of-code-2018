@@ -11,9 +11,9 @@ import re
 #from numba import jit
 from sys import exit
 
-day = 8
-if __file__.endswith("_2"):
-    m = __import__(day + "_1")
+day = 12345
+if __file__.endswith("_2.py"):
+    m = __import__(str(day) + "_1")
 
 def answer(input):
     """
