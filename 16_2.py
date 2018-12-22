@@ -62,16 +62,23 @@ ops = [addr, addi, mulr, muli,
        gtrr, eqir, eqri, eqrr]
 
 def answer(input):
-    num_samples_behave_like_three_or_more = 0
+    r"""
+    >>> answer("Before: [3, 2, 1, 1]\n9 2 1 2After:  [3, 2, 2, 1]\n\nBefore: [2, 1, 2, 1]\n9 0 2 0\nAfter:  [1, 1, 2, 1]")
+    
+    """    
+    op_id_to_possible_ops = {}
+    for op_id in range(16):
+        op_id_to_possible_ops[op_id] = set(ops)
+    
     for match in re.findall(r"Before: \[\d+, \d+, \d+, \d+\]\n\d+ \d+ \d+ \d+\nAfter:  \[\d+, \d+, \d+, \d+\]", input):
         m = re.search(r"Before: \[(\d+), (\d+), (\d+), (\d+)\]", match, flags=re.M)
         b0, b1, b2, b3 = (int(x) for x in m.groups())
         m = re.search(r"^(\d+) (\d+) (\d+) (\d+)$", match, re.M)
-        o, a, b, c = (int(x) for x in m.groups())
+        op_id, a, b, c = (int(x) for x in m.groups())
         m = re.search(r"After:  \[(\d+), (\d+), (\d+), (\d+)\]", match, flags=re.M)
         a0, a1, a2, a3 = (int(x) for x in m.groups())
         
-        num_matching_ops = 0
+        matching_ops = set()
         for op in ops:
             registers[0] = b0
             registers[1] = b1
@@ -84,10 +91,33 @@ def answer(input):
                registers[1] == a1 and \
                registers[2] == a2 and \
                registers[3] == a3:
-               num_matching_ops += 1
-        if num_matching_ops >= 3:
-            num_samples_behave_like_three_or_more += 1
-    return num_samples_behave_like_three_or_more
+               matching_ops.add(op)
+        op_id_to_possible_ops[op_id] = op_id_to_possible_ops[op_id] & matching_ops
+    
+    op_id_to_ops = {}
+    while len(op_id_to_ops) < 16:
+        sorted_op_ids = sorted(op_id_to_possible_ops, key=lambda op_id: len(op_id_to_possible_ops[op_id]))
+        for sorted_op_id in sorted_op_ids:
+            possible_ops = op_id_to_possible_ops[sorted_op_id]
+            if len(possible_ops) == 1:
+                op_id_to_ops[sorted_op_id] = list(possible_ops)[0]
+                del op_id_to_possible_ops[sorted_op_id]
+                for op_id in op_id_to_possible_ops:
+                    op_id_to_possible_ops[op_id] = op_id_to_possible_ops[op_id] - set([op_id_to_ops[sorted_op_id]])
+            else:
+                break
+    
+    registers[0] = 0
+    registers[1] = 0
+    registers[2] = 0
+    registers[3] = 0
+    
+    _, program = input.split("\n\n\n\n")
+    for line in program.split("\n"):
+        m = re.match(r"(\d+) (\d+) (\d+) (\d+)", line)
+        op_id, a, b, c = (int(x) for x in m.groups())
+        op_id_to_ops[op_id](a, b, c)
+    return registers[0]
 
 if __name__ == '__main__':
     import argparse
