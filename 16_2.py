@@ -61,11 +61,7 @@ ops = [addr, addi, mulr, muli,
        setr, seti, gtir, gtri,
        gtrr, eqir, eqri, eqrr]
 
-def answer(input):
-    r"""
-    >>> answer("Before: [3, 2, 1, 1]\n9 2 1 2After:  [3, 2, 2, 1]\n\nBefore: [2, 1, 2, 1]\n9 0 2 0\nAfter:  [1, 1, 2, 1]")
-    
-    """    
+def answer(input):  
     op_id_to_possible_ops = {}
     for op_id in range(16):
         op_id_to_possible_ops[op_id] = set(ops)
